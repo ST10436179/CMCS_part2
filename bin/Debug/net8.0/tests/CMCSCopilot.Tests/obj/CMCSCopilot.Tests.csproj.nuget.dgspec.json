@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\RC_Student_Lab\\Documents\\PROG 2nd Semester\\CMCSCopilot\\CMCSCopilot\\CMCSCopilot.csproj": {}
+    "C:\\Users\\RC_Student_Lab\\Documents\\PROG 2nd Semester\\CMCSCopilot\\CMCSCopilot\\tests\\CMCSCopilot.Tests\\CMCSCopilot.Tests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\RC_Student_Lab\\Documents\\PROG 2nd Semester\\CMCSCopilot\\CMCSCopilot\\CMCSCopilot.csproj": {
+    "C:\\Users\\RC_Student_Lab\\Documents\\PROG 2nd Semester\\CMCSCopilot\\CMCSCopilot\\tests\\CMCSCopilot.Tests\\CMCSCopilot.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\RC_Student_Lab\\Documents\\PROG 2nd Semester\\CMCSCopilot\\CMCSCopilot\\CMCSCopilot.csproj",
-        "projectName": "CMCSCopilot",
-        "projectPath": "C:\\Users\\RC_Student_Lab\\Documents\\PROG 2nd Semester\\CMCSCopilot\\CMCSCopilot\\CMCSCopilot.csproj",
+        "projectUniqueName": "C:\\Users\\RC_Student_Lab\\Documents\\PROG 2nd Semester\\CMCSCopilot\\CMCSCopilot\\tests\\CMCSCopilot.Tests\\CMCSCopilot.Tests.csproj",
+        "projectName": "CMCSCopilot.Tests",
+        "projectPath": "C:\\Users\\RC_Student_Lab\\Documents\\PROG 2nd Semester\\CMCSCopilot\\CMCSCopilot\\tests\\CMCSCopilot.Tests\\CMCSCopilot.Tests.csproj",
         "packagesPath": "C:\\Users\\RC_Student_Lab\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\RC_Student_Lab\\Documents\\PROG 2nd Semester\\CMCSCopilot\\CMCSCopilot\\obj\\",
+        "outputPath": "C:\\Users\\RC_Student_Lab\\Documents\\PROG 2nd Semester\\CMCSCopilot\\CMCSCopilot\\tests\\CMCSCopilot.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -22,15 +22,15 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net8.0"
+          "net9.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
+          "net9.0": {
+            "targetAlias": "net9.0",
             "projectReferences": {}
           }
         },
@@ -47,38 +47,38 @@
         "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
+        "net9.0": {
+          "targetAlias": "net9.0",
           "dependencies": {
-            "Microsoft.EntityFrameworkCore": {
+            "Microsoft.AspNetCore.Mvc.ViewFeatures": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.InMemory": {
               "target": "Package",
               "version": "[9.0.10, )"
             },
-            "Microsoft.EntityFrameworkCore.Abstractions": {
+            "Microsoft.NET.Test.Sdk": {
               "target": "Package",
-              "version": "[9.0.10, )"
-            },
-            "Microsoft.EntityFrameworkCore.Design": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[9.0.10, )"
-            },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
-              "target": "Package",
-              "version": "[9.0.10, )"
+              "version": "[17.12.0, )"
             },
             "Moq": {
               "target": "Package",
               "version": "[4.20.72, )"
             },
+            "coverlet.collector": {
+              "target": "Package",
+              "version": "[6.0.2, )"
+            },
             "xunit": {
               "target": "Package",
-              "version": "[2.9.3, )"
+              "version": "[2.9.2, )"
             },
-            "xunit.assert": {
+            "xunit.runner.visualstudio": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
-              "version": "[2.9.3, )"
+              "version": "[3.1.5, )"
             }
           },
           "imports": [
@@ -93,9 +93,6 @@
           "assetTargetFallback": true,
           "warn": true,
           "frameworkReferences": {
-            "Microsoft.AspNetCore.App": {
-              "privateAssets": "none"
-            },
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
