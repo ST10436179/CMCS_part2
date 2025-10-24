@@ -17,7 +17,6 @@ namespace CMCSCopilot.Controllers
             _fileService = fileService;
         }
 
-        // Lecturer index - list own claims (for demo, lists all)
         public async Task<IActionResult> Index()
         {
             var claims = await _db.Claims.Include(c => c.Files).OrderByDescending(c => c.SubmittedAt).ToListAsync();
@@ -33,21 +32,18 @@ namespace CMCSCopilot.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Claim model, IFormFile[] uploads)
         {
-            // Ensure server-side required values
             model.LecturerId = User?.Identity?.Name ?? "TestLecturer";
             model.Amount = decimal.Round(model.HoursWorked * model.HourlyRate, 2);
             model.SubmittedAt = DateTime.UtcNow;
             model.LastUpdatedAt = DateTime.UtcNow;
             model.LastUpdatedBy = User?.Identity?.Name ?? "Lecturer";
 
-            // Remove ModelState entries for server-set fields so validation is re-evaluated
             ModelState.Remove(nameof(Claim.LecturerId));
             ModelState.Remove(nameof(Claim.Amount));
             ModelState.Remove(nameof(Claim.SubmittedAt));
             ModelState.Remove(nameof(Claim.LastUpdatedAt));
             ModelState.Remove(nameof(Claim.LastUpdatedBy));
 
-            // Re-validate the model after setting server-side values
             if (!TryValidateModel(model))
             {
                 var errors = ModelState
@@ -61,11 +57,9 @@ namespace CMCSCopilot.Controllers
                 return View(model);
             }
 
-            // Save claim
             _db.Claims.Add(model);
             await _db.SaveChangesAsync();
 
-            // Save files linked to the claim
             if (uploads != null && uploads.Length > 0)
             {
                 foreach (var file in uploads)

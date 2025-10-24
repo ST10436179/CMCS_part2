@@ -33,13 +33,11 @@
         <span asp-validation-for="Notes" class="text-danger"></span>
     </div>
 
-    <!-- optional client-visible amount and hidden model fields so binding is explicit -->
     <div class="form-group">
         <label>Calculated Amount</label>
         <input id="calculatedAmount" class="form-control" readonly />
     </div>
 
-    <!-- Hidden fields to ensure model binder has keys present (server still overrides values) -->
     <input asp-for="Amount" type="hidden" />
     <input asp-for="LecturerId" type="hidden" />
 
