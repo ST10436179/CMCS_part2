@@ -53,6 +53,7 @@ header.shadow-sm {
 
 .table tbody tr {
     background: white;
+
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(31,45,61,0.04);
 }
@@ -60,6 +61,7 @@ header.shadow-sm {
 .btn-primary {
     background: var(--brand);
     border-color: var(--brand);
+
     box-shadow: 0 6px 18px rgba(11,94,215,0.12);
 }
 
