@@ -1,0 +1,69 @@
+﻿@model CMCSCopilot.Models.Claim
+@{
+    ViewData["Title"] = "Submit Claim";
+}
+
+<h2>Submit Claim</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="HoursWorked"></label>
+        <input asp-for="HoursWorked" type="number" class="form-control" step="0.5" min="0.5" />
+        <span asp-validation-for="HoursWorked" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="HourlyRate"></label>
+        <input asp-for="HourlyRate" type="number" class="form-control" step="0.01" min="0.01" />
+        <span asp-validation-for="HourlyRate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Supporting Documents</label>
+        <input type="file" name="uploads" multiple class="form-control" />
+        <small class="form-text text-muted">Allowed: .pdf .docx .xlsx. Max size per file: 5 MB</small>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Notes"></label>
+        <textarea asp-for="Notes" class="form-control"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+
+    <!-- optional client-visible amount and hidden model fields so binding is explicit -->
+    <div class="form-group">
+        <label>Calculated Amount</label>
+        <input id="calculatedAmount" class="form-control" readonly />
+    </div>
+
+    <!-- Hidden fields to ensure model binder has keys present (server still overrides values) -->
+    <input asp-for="Amount" type="hidden" />
+    <input asp-for="LecturerId" type="hidden" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const hours = document.querySelector('[name="HoursWorked"]');
+        const rate = document.querySelector('[name="HourlyRate"]');
+        const out = document.getElementById('calculatedAmount');
+        const hiddenAmount = document.querySelector('[name="Amount"]');
+
+        function update() {
+            const h = parseFloat(hours.value.replace(',', '.')) || 0;
+            const r = parseFloat(rate.value.replace(',', '.')) || 0;
+            const amt = (h * r) || 0;
+            out.value = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(amt.toFixed(2));
+            if (hiddenAmount) hiddenAmount.value = amt.toFixed(2);
+        }
+
+        hours?.addEventListener('input', update);
+        rate?.addEventListener('input', update);
+        update();
+    </script>
+}

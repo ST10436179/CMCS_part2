@@ -1,0 +1,26 @@
+﻿@model CMCSCopilot.Models.Claim
+@{
+    ViewData["Title"] = "Claim Details";
+}
+
+<h2>Claim #@Model.Id</h2>
+<dl class="row">
+    <dt class="col-sm-2">Lecturer</dt>
+    <dd class="col-sm-10">@Model.LecturerId</dd>
+    <dt class="col-sm-2">Hours</dt>
+    <dd class="col-sm-10">@Model.HoursWorked</dd>
+    <dt class="col-sm-2">Rate</dt>
+    <dd class="col-sm-10">@Model.HourlyRate</dd>
+    <dt class="col-sm-2">Amount</dt>
+    <dd class="col-sm-10">@Model.Amount.ToString("C")</dd>
+    <dt class="col-sm-2">Status</dt>
+    <dd class="col-sm-10">@Model.Status</dd>
+    <dt class="col-sm-2">Files</dt>
+    <dd class="col-sm-10">
+        @foreach (var f in Model.Files)
+        {
+            <div>@f.FileName</div>
+        }
+    </dd>
+</dl>
+<a asp-action="Index" class="btn btn-secondary">Back</a>

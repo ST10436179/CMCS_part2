@@ -1,0 +1,35 @@
+﻿@model IEnumerable<CMCSCopilot.Models.Claim>
+
+@{
+    ViewData["Title"] = "My Claims";
+}
+
+<h2>Claims</h2>
+<p>
+    <a asp-action="Create" class="btn btn-primary">Submit New Claim</a>
+    <a asp-controller="Admin" asp-action="Index" class="btn btn-secondary">Coordinator View</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr><th>Id</th><th>Amount</th><th>Status</th><th>Submitted</th><th>Files</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.Id</td>
+                <td>@c.Amount.ToString("C")</td>
+                <td>@c.Status</td>
+                <td>@c.SubmittedAt.ToLocalTime()</td>
+                <td>
+                    @foreach (var f in c.Files)
+                    {
+                        <div>@f.FileName</div>
+                    }
+                </td>
+                <td><a asp-action="Details" asp-route-id="@c.Id" class="btn btn-sm btn-info">Details</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

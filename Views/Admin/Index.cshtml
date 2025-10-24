@@ -1,0 +1,36 @@
+﻿@model IEnumerable<CMCSCopilot.Models.Claim>
+
+@{
+    ViewData["Title"] = "Coordinator - Pending Claims";
+}
+
+<h2>Pending Claims</h2>
+
+<table class="table">
+    <thead><tr><th>Id</th><th>Lecturer</th><th>Hours</th><th>Rate</th><th>Amount</th><th>Submitted</th><th>Actions</th></tr></thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.Id</td>
+                <td>@c.LecturerId</td>
+                <td>@c.HoursWorked</td>
+                <td>@c.HourlyRate</td>
+                <td>@c.Amount.ToString("C")</td>
+                <td>@c.SubmittedAt.ToLocalTime()</td>
+                <td>
+                    <form asp-action="ChangeStatus" method="post" style="display:inline">
+                        <input type="hidden" name="id" value="@c.Id" />
+                        <input type="hidden" name="status" value="Approved" />
+                        <button class="btn btn-sm btn-success">Approve</button>
+                    </form>
+                    <form asp-action="ChangeStatus" method="post" style="display:inline">
+                        <input type="hidden" name="id" value="@c.Id" />
+                        <input type="hidden" name="status" value="Rejected" />
+                        <button class="btn btn-sm btn-danger">Reject</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

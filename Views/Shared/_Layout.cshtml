@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - CMCS Copilot</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body class="bg-light">
+
+    <header class="shadow-sm bg-white">
+        <nav class="container navbar navbar-expand-lg navbar-light">
+            <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                <img src="~/images/logo.svg" alt="CMCS" style="height:36px;margin-right:10px" />
+                <span class="brand-text">CMCS Copilot</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-3 me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Claims" && ViewContext.RouteData.Values["action"]?.ToString() == "Create" ? "active" : "")" asp-controller="Claims" asp-action="Create">Submit Claim</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Claims" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Claims" asp-action="Index">My Claims</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Index">Coordinator View</a>
+                    </li>
+                </ul>
+
+                <form class="d-flex align-items-center me-3" asp-controller="Search" asp-action="Index">
+                    <div class="input-group input-group-sm">
+                        <input class="form-control form-control-sm border-0 bg-light" type="search" name="q" placeholder="Search claims..." />
+                        <button class="btn btn-outline-secondary btn-sm" type="submit">Search</button>
+                    </div>
+                </form>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <img src="~/images/user-placeholder.png" class="rounded-circle" style="height:30px;width:30px;object-fit:cover" />
+                            <span class="ms-2">Sign in</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" asp-controller="Account" asp-action="Login">Login</a></li>
+                            <li><a class="dropdown-item" asp-controller="Account" asp-action="Register">Register</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                @RenderBody()
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-5 py-4 border-top bg-white">
+        <div class="container d-flex justify-content-between small text-muted">
+            <div>&copy; @DateTime.UtcNow.Year CMCS Copilot</div>
+            <div>Version 1.0.0</div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
