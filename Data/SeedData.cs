@@ -1,4 +1,4 @@
-using ContractMonthlyClaimSystem.Data;
+﻿using ContractMonthlyClaimSystem.Data;
 using ContractMonthlyClaimSystem.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

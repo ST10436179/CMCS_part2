@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
+using ContractMonthlyClaimSystem.Models;
 
-namespace CMCSCopilot.Services
+namespace ContractMonthlyClaimSystem.Services
 {
     public interface IFileService
     {
-        Task<(bool Success, string StoredFileName, string OriginalFileName, long Size, string Error)> SaveFileAsync(IFormFile file);
-        void DeleteFile(string storedFileName);
+        Task<Document> UploadFileAsync(IFormFile file, int claimId);
+        string GetFilePath(int documentId);
+        Stream GetFilestream(string filePath);
+        bool DeleteFile(string filePath);
     }
 }

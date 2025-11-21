@@ -1,22 +1,36 @@
-﻿using System.Collections.Generic;
-using System.Reflection.Emit;
-using CMCSCopilot.Models;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using ContractMonthlyClaimSystem.Models;
 
-namespace CMCSCopilot.Data
+namespace ContractMonthlyClaimSystem.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
-
         public DbSet<Claim> Claims { get; set; }
-        public DbSet<ClaimFile> ClaimFiles { get; set; }
+        public DbSet<Document> Documents { get; set; }
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
+        {
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.Entity<Claim>().HasMany(c => c.Files).WithOne(f => f.Claim).HasForeignKey(f => f.ClaimId).OnDelete(DeleteBehavior.Cascade);
+
+            // Configure Claim relationships
+            builder.Entity<Claim>()
+                .HasOne(c => c.Lecturer)
+                .WithMany()
+                .HasForeignKey(c => c.LecturerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure Document relationships
+            builder.Entity<Document>()
+                .HasOne(d => d.Claim)
+                .WithMany(c => c.Documents)
+                .HasForeignKey(d => d.ClaimId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

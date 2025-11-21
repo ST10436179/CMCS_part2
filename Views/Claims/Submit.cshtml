@@ -1,0 +1,109 @@
+﻿@model ContractMonthlyClaimSystem.ViewModels.ClaimViewModel
+
+@{
+    ViewData["Title"] = "Submit Claim";
+}
+
+<h1 class="mb-4"><i class="fas fa-file-invoice me-2"></i>Submit New Claim</h1>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Claim Details</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Submit" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="HoursWorked" class="form-label"></label>
+                <input asp-for="HoursWorked" class="form-control" id="hoursWorked" />
+                <span asp-validation-for="HoursWorked" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="HourlyRate" class="form-label"></label>
+                <div class="input-group">
+                    <span class="input-group-text">R</span>
+                    <input asp-for="HourlyRate" class="form-control" id="hourlyRate" />
+                </div>
+                <span asp-validation-for="HourlyRate" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="TotalAmount" class="form-label fw-bold">Total Amount</label>
+                <div class="input-group">
+                    <span class="input-group-text">R</span>
+                    <input asp-for="TotalAmount" class="form-control fw-bold" id="totalAmount" readonly />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Notes" class="form-label"></label>
+                <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SupportingDocument" class="form-label"></label>
+                <input asp-for="SupportingDocument" type="file" class="form-control" id="documentUpload"
+                       accept=".pdf,.docx,.xlsx" />
+                <div class="form-text">Maximum file size: 5MB. Allowed formats: PDF, DOCX, XLSX</div>
+                <span asp-validation-for="SupportingDocument" class="text-danger"></span>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a asp-action="Index" class="btn btn-secondary me-md-2">
+                    <i class="fas fa-arrow-left me-1"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-1"></i>Submit Claim
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // Auto-calculate total when hours or rate changes
+            $('#hoursWorked, #hourlyRate').on('input', function() {
+                var hours = parseFloat($('#hoursWorked').val()) || 0;
+                var rate = parseFloat($('#hourlyRate').val()) || 0;
+
+                if (hours > 0 && rate > 0) {
+                    $.get('/Claims/CalculateTotal', {
+                        hoursWorked: hours,
+                        hourlyRate: rate
+                    }, function(data) {
+                        $('#totalAmount').val(data.total);
+                    });
+                } else {
+                    $('#totalAmount').val('');
+                }
+            });
+
+            // Validate file on selection
+            $('#documentUpload').change(function() {
+                var file = this.files[0];
+                var allowedTypes = ['.pdf', '.docx', '.xlsx'];
+                var maxSize = 5 * 1024 * 1024; // 5MB
+
+                if (file) {
+                    var fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+                    var isValidType = allowedTypes.includes(fileExtension);
+                    var isValidSize = file.size <= maxSize;
+
+                    if (!isValidType) {
+                        alert('Invalid file type. Only PDF, DOCX, and XLSX files are allowed.');
+                        this.value = '';
+                    } else if (!isValidSize) {
+                        alert('File size exceeds the 5MB limit.');
+                        this.value = '';
+                    }
+                }
+            });
+        });
+    </script>
+}
