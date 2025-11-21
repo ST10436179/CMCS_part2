@@ -1,28 +1,26 @@
-﻿using CMCSCopilot.Data;
-using CMCSCopilot.Models;
-using CMCSCopilot.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ContractMonthlyClaimSystem.Models;
 
-namespace CMCSCopilot.Controllers
+namespace ContractMonthlyClaimSystem.Controllers
 {
+    [Authorize(Roles = "Lecturer,Admin")]
     public class ClaimsController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        private readonly IFileService _fileService;
+        private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _environment;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ClaimsController(ApplicationDbContext db, IFileService fileService)
+        public ClaimsController(AppDbContext context, IWebHostEnvironment environment, UserManager<ApplicationUser> userManager)
         {
-            _db = db;
-            _fileService = fileService;
+            _context = context;
+            _environment = environment;
+            _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
-        {
-            var claims = await _db.Claims.Include(c => c.Files).OrderByDescending(c => c.SubmittedAt).ToListAsync();
-            return View(claims);
-        }
-
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
@@ -30,67 +28,98 @@ namespace CMCSCopilot.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Claim model, IFormFile[] uploads)
+        public async Task<IActionResult> Create(Claim claim, IFormFile supportingDocument)
         {
-            model.LecturerId = User?.Identity?.Name ?? "TestLecturer";
-            model.Amount = decimal.Round(model.HoursWorked * model.HourlyRate, 2);
-            model.SubmittedAt = DateTime.UtcNow;
-            model.LastUpdatedAt = DateTime.UtcNow;
-            model.LastUpdatedBy = User?.Identity?.Name ?? "Lecturer";
-
-            ModelState.Remove(nameof(Claim.LecturerId));
-            ModelState.Remove(nameof(Claim.Amount));
-            ModelState.Remove(nameof(Claim.SubmittedAt));
-            ModelState.Remove(nameof(Claim.LastUpdatedAt));
-            ModelState.Remove(nameof(Claim.LastUpdatedBy));
-
-            if (!TryValidateModel(model))
+            if (ModelState.IsValid)
             {
-                var errors = ModelState
-                    .Where(kvp => kvp.Value.Errors.Count > 0)
-                    .Select(kvp => $"{kvp.Key}: {string.Join(", ", kvp.Value.Errors.Select(e => e.ErrorMessage))}");
-
-                var msg = "Model validation failed: " + string.Join(" | ", errors);
-                Console.WriteLine(msg);
-
-                ModelState.AddModelError(string.Empty, "Submission failed. Please fix highlighted fields.");
-                return View(model);
-            }
-
-            _db.Claims.Add(model);
-            await _db.SaveChangesAsync();
-
-            if (uploads != null && uploads.Length > 0)
-            {
-                foreach (var file in uploads)
+                // Get current user
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
                 {
-                    var result = await _fileService.SaveFileAsync(file);
-                    if (result.Success)
-                    {
-                        _db.ClaimFiles.Add(new ClaimFile
-                        {
-                            ClaimId = model.Id,
-                            FileName = result.OriginalFileName,
-                            StoredFileName = result.StoredFileName,
-                            Size = result.Size
-                        });
-                    }
-                    else
-                    {
-                        ModelState.AddModelError(string.Empty, $"Upload error: {result.Error}");
-                    }
+                    return RedirectToAction("Login", "Account");
                 }
-                await _db.SaveChangesAsync();
-            }
 
-            return RedirectToAction(nameof(Index));
+                claim.UserId = user.Id;
+
+                // Handle file upload
+                if (supportingDocument != null && supportingDocument.Length > 0)
+                {
+                    // Validate file size (10MB max)
+                    if (supportingDocument.Length > 10 * 1024 * 1024)
+                    {
+                        ModelState.AddModelError("supportingDocument", "File size must be less than 10MB.");
+                        return View(claim);
+                    }
+
+                    // Validate file type
+                    var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".xls", ".xlsx" };
+                    var fileExtension = Path.GetExtension(supportingDocument.FileName).ToLowerInvariant();
+                    if (!allowedExtensions.Contains(fileExtension))
+                    {
+                        ModelState.AddModelError("supportingDocument", "Only PDF, Word, and Excel files are allowed.");
+                        return View(claim);
+                    }
+
+                    var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + supportingDocument.FileName;
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await supportingDocument.CopyToAsync(fileStream);
+                    }
+
+                    claim.FileName = supportingDocument.FileName;
+                    claim.FilePath = uniqueFileName;
+                }
+
+                _context.Add(claim);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Claim submitted successfully!";
+                return RedirectToAction(nameof(SubmissionConfirmation), new { id = claim.Id });
+            }
+            return View(claim);
         }
 
-        public async Task<IActionResult> Details(int id)
+        [HttpGet]
+        public async Task<IActionResult> SubmissionConfirmation(int id)
         {
-            var claim = await _db.Claims.Include(c => c.Files).FirstOrDefaultAsync(c => c.Id == id);
-            if (claim == null) return NotFound();
+            var claim = await _context.Claims
+                .Include(c => c.User)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (claim == null)
+            {
+                return NotFound();
+            }
+
+            // Ensure user can only see their own claims unless they're admin
+            var user = await _userManager.GetUserAsync(User);
+            if (claim.UserId != user.Id && !User.IsInRole("Admin"))
+            {
+                return Forbid();
+            }
+
             return View(claim);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Lecturer,Admin")]
+        public async Task<IActionResult> MyClaims()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var claims = await _context.Claims
+                .Where(c => c.UserId == user.Id)
+                .OrderByDescending(c => c.SubmissionDate)
+                .ToListAsync();
+
+            return View(claims);
         }
     }
 }
